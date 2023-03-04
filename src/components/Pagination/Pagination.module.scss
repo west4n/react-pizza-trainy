@@ -1,0 +1,33 @@
+.root {
+	display: flex;
+	gap: 10px;
+
+	a {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 45px;
+		height: 45px;
+		line-height: 42px;
+		height: 45px;
+		border: 1px solid #fe5f1e;
+		border-radius: 30px;
+		cursor: pointer;
+		font-weight: 600;
+		color: #fe5f1e;
+		&:hover {
+			background: #fe5f1e;
+			color: #fff;
+		}
+	}
+}
+
+:global {
+	.selected {
+		border-radius: 30px;
+		background-color: #fe5f1e;
+		a {
+			color: #fff;
+		}
+	}
+}
