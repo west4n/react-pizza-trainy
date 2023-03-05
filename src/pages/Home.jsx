@@ -1,5 +1,6 @@
 import axios from 'axios'
 import React from 'react'
+import { SearchContext } from '../App'
 
 import Categories from '../components/Categories'
 import Pagination from '../components/Pagination/Pagination'
@@ -7,7 +8,9 @@ import PizzaBlock from '../components/PizzaBlock'
 import Skeleton from '../components/Skeleton'
 import Sort from '../components/Sort'
 
-const Home = ({ searchValue }) => {
+const Home = () => {
+	const { searchValue } = React.useContext(SearchContext)
+
 	const [items, setItems] = React.useState([])
 	const [isLoading, setIsLoading] = React.useState(true)
 	const [categoryId, setCategoryId] = React.useState(0)
