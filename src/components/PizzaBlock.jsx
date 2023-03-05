@@ -1,10 +1,27 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { addItem } from '../redux/slices/cartSlice'
 
-function PizzaBlock({ title, price, imageUrl, sizes, types }) {
+function PizzaBlock({ title, price, imageUrl, sizes, types, id }) {
+	const dispatch = useDispatch()
+
 	const typesName = ['тонкое', 'традиционное']
 
-	const [active, setActive] = useState(0)
-	const [typesNameCount, setTypesNameCount] = useState(0)
+	const [activeType, setActiveType] = useState(0)
+	const [activeSize, setActiveSize] = useState(0)
+
+	const onClickAdd = () => {
+		const item = {
+			id,
+			title,
+			price,
+			imageUrl,
+			type: activeType,
+			size: activeSize,
+		}
+
+		dispatch(addItem(item))
+	}
 
 	return (
 		<div className='pizza-block-wrapper'>
@@ -16,8 +33,8 @@ function PizzaBlock({ title, price, imageUrl, sizes, types }) {
 						{types.map((item, i) => (
 							<li
 								key={item}
-								onClick={() => setTypesNameCount(i)}
-								className={typesNameCount === i ? 'active' : ''}
+								onClick={() => setActiveType(i)}
+								className={activeType === i ? 'active' : ''}
 							>
 								{typesName[item]}
 							</li>
@@ -27,8 +44,8 @@ function PizzaBlock({ title, price, imageUrl, sizes, types }) {
 						{sizes.map((item, i) => (
 							<li
 								key={item}
-								onClick={() => setActive(i)}
-								className={active === i ? 'active' : ''}
+								onClick={() => setActiveSize(i)}
+								className={activeSize === i ? 'active' : ''}
 							>
 								{item} см.
 							</li>
@@ -37,7 +54,10 @@ function PizzaBlock({ title, price, imageUrl, sizes, types }) {
 				</div>
 				<div className='pizza-block__bottom'>
 					<div className='pizza-block__price'>от {price} ₽</div>
-					<button className='button button--outline button--add'>
+					<button
+						onClick={onClickAdd}
+						className='button button--outline button--add'
+					>
 						<svg
 							width='12'
 							height='12'
