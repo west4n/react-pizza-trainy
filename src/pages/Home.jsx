@@ -1,4 +1,3 @@
-import axios from 'axios'
 import qs from 'qs'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -15,6 +14,7 @@ import {
 	setCurrentPage,
 	setFilters,
 } from '../redux/slices/filterSlice'
+import { fetchPizzas } from '../redux/slices/pizzaSlice'
 
 const Home = () => {
 	const navigate = useNavigate()
@@ -24,11 +24,9 @@ const Home = () => {
 	const isMounted = React.useRef(false)
 
 	const { categoryId, sort, currentPage } = useSelector((state) => state.filter)
+	const { items, status } = useSelector((state) => state.pizza)
 
 	const { searchValue } = React.useContext(SearchContext)
-
-	const [items, setItems] = React.useState([])
-	const [isLoading, setIsLoading] = React.useState(true)
 
 	const onChangeCategory = (id) => {
 		dispatch(setCategoryId(id))
@@ -38,21 +36,21 @@ const Home = () => {
 		dispatch(setCurrentPage(number))
 	}
 
-	const fetchPizzas = () => {
-		const category = `${categoryId > 0 ? `&category=${categoryId}` : ''}`
+	const getPizzas = async () => {
+		const category = categoryId > 0 ? `&category=${categoryId}` : ''
 		const sortBy = sort.sortProperty.replace('-', '')
 		const order = sort.sortProperty.includes('-') ? 'asc' : 'desc'
 		const search = searchValue ? `&search=${searchValue}` : ''
 
-		setIsLoading(true)
-		axios
-			.get(
-				`https://63f50aa13f99f5855dbc89db.mockapi.io/items?page=${currentPage}&limit=4${category}&sortBy=${sortBy}&order=${order}${search}`
-			)
-			.then((res) => {
-				setItems(res.data)
-				setIsLoading(false)
+		dispatch(
+			fetchPizzas({
+				category,
+				sortBy,
+				order,
+				search,
+				currentPage,
 			})
+		)
 	}
 
 	// Если изменили параметры и был первый рендер
@@ -83,14 +81,14 @@ const Home = () => {
 				})
 			)
 
-			isSearch.current = true
+			isSearch.current = false
 		}
 	}, [])
 
 	// Если был первый рендер, то запрашиваем пиццы
 	React.useEffect(() => {
 		if (!isSearch.current) {
-			fetchPizzas()
+			getPizzas()
 		}
 
 		isSearch.current = false
@@ -107,8 +105,21 @@ const Home = () => {
 				<Categories value={categoryId} onChangeCategory={onChangeCategory} />
 				<Sort />
 			</div>
-			<h2 className='content__title'>Все пиццы</h2>
-			<div className='content__items'>{isLoading ? skeletons : pizzas}</div>
+			{status === 'error' ? '' : <h2 className='content__title'>Все пиццы</h2>}
+			{status === 'error' ? (
+				<div className='content__error-info'>
+					<h2>Произошла ошибка 😕</h2>
+					<p>
+						К сожалению, пиццы не смогли загрузиться, попробуйте попытку
+						чуть-чуть позже...
+					</p>
+				</div>
+			) : (
+				<div className='content__items'>
+					{status === 'loading' ? skeletons : pizzas}
+				</div>
+			)}
+
 			<Pagination currentPage={currentPage} onChangePage={onChangePage} />
 		</div>
 	)
